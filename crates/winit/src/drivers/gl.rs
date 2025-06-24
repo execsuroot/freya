@@ -94,8 +94,10 @@ impl OpenGLDriver {
         let display_builder = DisplayBuilder::new().with_window_attributes(Some(window_attributes));
         let (window, gl_config) = display_builder
             .build(event_loop, template, |configs| {
+                println!("listing configs");
                 configs
                     .reduce(|accum, config| {
+                        println!("- config: {:?}", config.supports_transparency());
                         let transparency_check = config.supports_transparency().unwrap_or(false)
                             & !accum.supports_transparency().unwrap_or(false);
 
@@ -108,6 +110,11 @@ impl OpenGLDriver {
                     .unwrap()
             })
             .unwrap();
+
+        println!(
+            "supports_transparency?: {:?}",
+            gl_config.supports_transparency()
+        );
 
         let window = window.expect("Could not create window with OpenGL context");
 
