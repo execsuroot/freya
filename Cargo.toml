@@ -104,7 +104,7 @@ skia-safe = { version = "0.87.0", features = ["gl", "textlayout", "svg"] }
 
 # Desktop renderer
 raw-window-handle = "0.6.0"
-winit = "0.30.12"
+winit = { git = "https://github.com/lapce/winit", rev = "133268de675a4fda70816d78a7a1435eb972fea1", package = "floem-winit" }
 
 # OpenGL
 gl = "0.14.0"
