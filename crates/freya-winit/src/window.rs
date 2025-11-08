@@ -1,56 +1,26 @@
-use std::{
-    borrow::Cow,
-    sync::Arc,
-    task::Waker,
-};
+use std::{borrow::Cow, sync::Arc, task::Waker};
 
 use accesskit_winit::Adapter;
-use freya_components::{
-    cache::AssetCacher,
-    keyboard_navigator::keyboard_navigator,
-};
+use freya_components::{cache::AssetCacher, keyboard_navigator::keyboard_navigator};
 use freya_core::integration::*;
-use freya_engine::prelude::{
-    FontCollection,
-    FontMgr,
-};
-use futures_util::task::{
-    ArcWake,
-    waker,
-};
+use freya_engine::prelude::{FontCollection, FontMgr};
+use futures_util::task::{ArcWake, waker};
 use ragnarok::NodesState;
-use torin::prelude::{
-    CursorPoint,
-    Size2D,
-};
+use torin::prelude::{CursorPoint, Size2D};
 use winit::{
     dpi::LogicalSize,
     event::ElementState,
-    event_loop::{
-        ActiveEventLoop,
-        EventLoopProxy,
-    },
+    event_loop::{ActiveEventLoop, EventLoopProxy},
     keyboard::ModifiersState,
-    window::{
-        Window,
-        WindowId,
-    },
+    window::{Window, WindowId},
 };
 
 use crate::{
     accessibility::AccessibilityTask,
     config::WindowConfig,
     drivers::GraphicsDriver,
-    plugins::{
-        PluginEvent,
-        PluginHandle,
-        PluginsManager,
-    },
-    renderer::{
-        NativeEvent,
-        NativeWindowEvent,
-        NativeWindowEventAction,
-    },
+    plugins::{PluginEvent, PluginHandle, PluginsManager},
+    renderer::{NativeEvent, NativeWindowEvent, NativeWindowEventAction},
 };
 
 pub struct AppWindow {
@@ -85,7 +55,7 @@ pub struct AppWindow {
 impl AppWindow {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        window_config: WindowConfig,
+        mut window_config: WindowConfig,
         active_event_loop: &ActiveEventLoop,
         event_loop_proxy: &EventLoopProxy<NativeEvent>,
         plugins: &mut PluginsManager,
@@ -95,6 +65,8 @@ impl AppWindow {
         screen_reader: ScreenReader,
     ) -> Self {
         let mut window_attributes = Window::default_attributes()
+            .with_resizable(window_config.resizable)
+            .with_window_icon(window_config.icon.clone())
             .with_visible(false)
             .with_title(window_config.title)
             .with_decorations(window_config.decorations)
@@ -107,6 +79,9 @@ impl AppWindow {
         if let Some(max_size) = window_config.max_size {
             window_attributes =
                 window_attributes.with_max_inner_size(LogicalSize::<f64>::from(max_size));
+        }
+        if let Some(window_attributes_hook) = window_config.window_attributes_hook.take() {
+            window_attributes = window_attributes_hook(window_attributes);
         }
         let (driver, window) =
             GraphicsDriver::new(active_event_loop, window_attributes, &window_config);
