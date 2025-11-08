@@ -104,7 +104,7 @@ skia-safe = { version = "0.87.0", features = ["gl", "textlayout", "svg"] }
 
 # Desktop renderer
 raw-window-handle = "0.6.0"
-winit = "0.30.0"
+winit = "0.30.12"
 
 # OpenGL
 gl = "0.14.0"
